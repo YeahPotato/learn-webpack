@@ -9,7 +9,7 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'build'),  // 绝对路径 输出文件夹
 		filename: 'bundle.js',
-		publicPath:"build/"
+		// publicPath:"build/"
 	},
 	devServer: {
 		port: 3332
@@ -52,7 +52,7 @@ module.exports = {
 		new ExtractTextPlugin('css/style.[hash].css'),
 		// 自动生成html
 		new HtmlWebpackPlugin({
-			filename:__dirname+'/index.html',
+			filename:__dirname+'/build/index.html',
 			title: "joke's html",
 			template: "template.html",
 			minify: {  //压缩HTML文件
@@ -62,7 +62,7 @@ module.exports = {
 		}),
 		// 清除构建后重复的文件
 		new CleanWebpackPlugin(
-			['build/css/style.*.css'],
+			['build/css/style.*.css','bulld/index.html'],
 			{
 				root: __dirname,
 				verbose: true,
