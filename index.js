@@ -1,7 +1,8 @@
-import as from './src/async'
+import as from './src/asy'
 import Person from './src/klass'
+import './src/dom'
 
-let worker = new Promise('joke');
+let worker = new Person('joke');
 as();
 
 let p = new Promise((resolve, reject) => {
