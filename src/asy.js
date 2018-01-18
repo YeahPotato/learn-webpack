@@ -1,14 +1,14 @@
 let as = async ()=>{
     await new Promise((resolve,reject)=>{
         setTimeout(()=>{
-            alert(1);
+            console.log(1);
             resolve();
         },1000)
     })
 
     await new Promise((resolve,reject)=>{
         setTimeout(()=>{
-            alert(2);
+            console.log(2);
             resolve();
         },200)
     })
