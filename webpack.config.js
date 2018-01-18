@@ -9,9 +9,10 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'build'),  // 绝对路径 输出文件夹
 		filename: 'bundle.js',
+		publicPath:"build/"
 	},
-	devServer:{
-		port:3332
+	devServer: {
+		port: 3332
 	},
 	module: {
 		rules: [
@@ -51,8 +52,13 @@ module.exports = {
 		new ExtractTextPlugin('css/style.[hash].css'),
 		// 自动生成html
 		new HtmlWebpackPlugin({
+			filename:__dirname+'/index.html',
 			title: "joke's html",
-			template: "index.html"
+			template: "template.html",
+			minify: {  //压缩HTML文件
+				removeComments: true,  //移除HTML中的注释
+				collapseWhitespace: true  //删除空白符与换行符
+			}
 		}),
 		// 清除构建后重复的文件
 		new CleanWebpackPlugin(
