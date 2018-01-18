@@ -1,36 +1,35 @@
 # webpack：从入门到真实项目配置 #
 
-## 该文使用的 Webpack 版本为 3.6.0，本文分两部分。第一步是简单的使用 webpack，第二部分通过一个真实项目来配置 webpack，没有使用任何的 CLI，都是一步步配置直到完成生产代码的打包。这是本项目对应的仓库，每个小节基本都对应了一次 commit。##
-
-### 这是本文的大纲，如果觉得有兴趣你就可以往下看了 ###
 
 
-#### Webpack 到底是什么 ####
+
+## Webpack 到底是什么 ##
 自从出现模块化以后，大家可以将原本一坨代码分离到个个模块中，但是由此引发了一个问题。每个 JS 文件都需要从服务器去拿，由此会导致加载速度变慢。Webpack 最主要的目的就是为了解决这个问题，将所有小文件打包成一个或多个大文件，官网的图片很好的诠释了这个事情，除此之外，Webpack 也是一个能让你使用各种前端新技术的工具。
 
 
-####  简单使用 ####
+###  简单使用 ###
 安装
 在命令行中依次输入
 
 mkdir  webpack-demo
 cd webpack-demo
-// 创建 package.json，这里会问一些问题，直接回车跳过就行
+创建 package.json，这里会问一些问题，直接回车跳过就行
 npm init 
-//  推荐这个安装方式，当然你也安装在全局环境下
-// 这种安装方式会将 webpack 放入 devDependencies 依赖中
+推荐这个安装方式，当然你也安装在全局环境下
+这种安装方式会将 webpack 放入 devDependencies 依赖中
 npm install --save-dev webpack
 然后按照下图创建文件
 
 
 在以下文件写入代码
 
-// sum.js
-// 这个模块化写法是 node 环境独有的，浏览器原生不支持使用
+`sum.js`
+这个模块化写法是 node 环境独有的，浏览器原生不支持使用
+```javascript
 module.exports = function(a, b) {
     return a + b
 }
-// index.js
+index.js
 var sum = require('./sum')
 console.log(sum(1, 2))
 <!DOCTYPE html>
@@ -43,9 +42,10 @@ console.log(sum(1, 2))
     <script src="./build/bundle.js"></script>
 </body>
 </html>
-现在我们开始配置最简单的 webpack，首先创建 webpack.config.js 文件，然后写入如下代码
+```
+现在我们开始配置最简单的 `webpack`，首先创建 `webpack.config.js` 文件，然后写入如下代码
 
-// 自带的库
+```javascript
 const path = require('path')
 module.exports = {
     entry:  './app/index.js', // 入口文件
@@ -54,16 +54,17 @@ module.exports = {
       filename: "bundle.js" // 打包后输出文件的文件名
     }
   }
+ ```
 现在我们可以开始使用 webpack 了，在命令行中输入
 
-node_modules/.bin/webpack
+`node_modules/.bin/webpack`
 没问题的话你应该可以看到类似的样子
 
 
-可以发现原本两个 JS 文件只有 100B，但是打包后却增长到 2.66KB，这之中 webpack 肯定做了什么事情，我们去 bundle.js 文件中看看。
+可以发现原本两个 JS 文件只有 100B，但是打包后却增长到 2.66KB，这之中 webpack 肯定做了什么事情，我们去 `bundle.js` 文件中看看。
 
 把代码简化以后，核心思路是这样的
-
+```javascript
 var array = [(function () {
         var sum = array[1]
         console.log(sum(1, 2))
@@ -73,28 +74,30 @@ var array = [(function () {
     })
 ]
 array[0]() // -> 3
-因为 module.export 浏览器是不支持的，所以 webpack 将代码改成浏览器能识别的样子。现在将 index.html 文件在浏览器中打开，应该也可以看到正确的 log。
+```
+因为 `module.export` 浏览器是不支持的，所以 `webpack` 将代码改成浏览器能识别的样子。现在将 `index.html` 文件在浏览器中打开，应该也可以看到正确的 log。
 
-我们之前是在文件夹中安装的 webpack，每次要输入 node_modules/.bin/webpack 过于繁琐，可以在 package.json 如下修改
-
+我们之前是在文件夹中安装的 `webpack`，每次要输入 `node_modules/.bin/webpack` 过于繁琐，可以在 `package.json` 如下修改
+```javascript
 "scripts": {
     "start": "webpack"
   },
-然后再次执行 npm run start，可以发现和之前的效果是相同的。简单的使用到此为止，接下来我们来探索 webpack 更多的功能。
+```
+然后再次执行 `npm run start`，可以发现和之前的效果是相同的。简单的使用到此为止，接下来我们来探索 `webpack` 更多的功能。
 
-#### Loader ####
+### Loader ###
 Loader 是 webpack 一个很强大功能，这个功能可以让你使用很多新的技术。
 
-#### Babel ####
-Babel 可以让你使用 ES2015/16/17 写代码而不用顾忌浏览器的问题，Babel 可以帮你转换代码。首先安装必要的几个 Babel 库
+### Babel ###
+`Babel` 可以让你使用 ES2015/16/17 写代码而不用顾忌浏览器的问题，`Babel` 可以帮你转换代码。首先安装必要的几个 `Babel` 库
 
-npm i --save-dev babel-loader babel-core babel-preset-env
+`npm i --save-dev babel-loader babel-core babel-preset-env`
 先介绍下我们安装的三个库
 
-babel-loader 用于让 webpack 知道如何运行 babel
-babel-core 可以看做编译器，这个库知道如何解析代码
-babel-preset-env 这个库可以根据环境的不同转换代码
-接下来更改 webpack-config.js 中的代码
+`babel-loader` 用于让 `webpack` 知道如何运行 `babel`
+`babel-core` 可以看做编译器，这个库知道如何解析代码
+`babel-preset-env` 这个库可以根据环境的不同转换代码
+接下来更改 `webpack-config.js` 中的代码
 ```javascript
 module.exports = {
 // ......
@@ -112,9 +115,9 @@ module.exports = {
     }
 }
 ```
-配置 Babel 有很多方式，这里推荐使用 .babelrc 文件管理。
+配置 `Babel` 有很多方式，这里推荐使用 `.babelrc` 文件管理。
 
-// .babelrc
+#### .babelrc ####
 ```javascript
 {
     "presets": ["babel-preset-env"]
@@ -134,19 +137,19 @@ console.log(sum(1, 2))
 
 当然 Babel 远不止这些功能，有兴趣的可以前往官网自己探索。
 
-#### 处理图片 ####
+### 处理图片 ###
 这一小节我们将使用 `url-loader` 和 `file-loader`，这两个库不仅可以处理图片，还有其他的功能，有兴趣的可以自行学习。
 
 先安装库
 
 `npm i --save-dev url-loader file-loader`
-创建一个 images 文件夹，放入两张图片，并且在 app 文件夹下创建一个 js 文件处理图片
+创建一个 `images` 文件夹，放入两张图片，并且在 `app` 文件夹下创建一个 js 文件处理图片
 ，目前的文件夹结构如图
 
 ```javascript
-// addImage.js
+`addImage.js`
 let smallImg = document.createElement('img')
-// 必须 require 进来
+//必须 require 进来
 smallImg.src = require('../images/small.jpeg')
 document.body.appendChild(smallImg)
 
@@ -184,7 +187,7 @@ module.exports = {
 运行 `npm run start`，打包成功如下图
 
 
-可以发现大的图片被单独提取了出来，小的图片打包进了 bundle.js 中。
+可以发现大的图片被单独提取了出来，小的图片打包进了 `bundle.js` 中。
 
 在浏览器中打开 HTML 文件，发现小图确实显示出来了，但是却没有看到大图，打开开发者工具栏，可以发现我们大图的图片路径是有问题的，所以我们又要修改 `webpack.config.js` 代码了。
 ```javascript
@@ -200,7 +203,7 @@ module.exports = {
 ```
 最后运行下 `npm run start`，编译成功了，再次刷新下页面，可以发现这次大图被正确的显示了。下一小节我们将介绍如何处理 CSS 文件。
 
-#### 处理 CSS 文件 ####
+### 处理 CSS 文件 ###
 添加 styles 文件夹，新增 addImage.css 文件，然后在该文件中新增代码
 ```css
 img {
@@ -301,17 +304,17 @@ git checkout -b demo 0.1
 cd project
 npm i 
 ```
-// 查看分支是否为 demo，没问题的话就可以进行下一步
-如何在项目中使用 webpack
-项目中已经配置了很简单的 babel 和 webpack，直接运行 npm run build 即可
+查看分支是否为 demo，没问题的话就可以进行下一步
+如何在项目中使用 `webpack`
+项目中已经配置了很简单的 `babel` 和 `webpack`，直接运行 `npm run build` 即可
 
 
-这时候你会发现这个 bundle.js 居然有这么大，这肯定是不能接受的，所以接下来章节的主要目的就是将单个文件拆分为多个文件，优化项目。
+这时候你会发现这个 `bundle.js` 居然有这么大，这肯定是不能接受的，所以接下来章节的主要目的就是将单个文件拆分为多个文件，优化项目。
 
-#### 分离代码 ####
+### 分离代码 ###
 先让我们考虑下缓存机制。对于代码中依赖的库很少会去主动升级版本，但是我们自己的代码却每时每刻都在变更，所以我们可以考虑将依赖的库和自己的代码分割开来，这样用户在下一次使用应用时就可以尽量避免重复下载没有变更的代码，那么既然要将依赖代码提取出来，我们需要变更下入口和出口的部分代码。
 
-// 这是 packet.json 中 dependencies 下的
+####这是 `packet.json` 中 `dependencies` 下的####
 ```javascript
 const VENOR = ["faker",
   "lodash",
@@ -340,15 +343,15 @@ module.exports = {
   // ...
  }
 ```
-现在我们 build 一下，看看是否有惊喜出现
+现在我们 build一下，看看是否有惊喜出现
 
 
 
 
-真的有惊喜。。为什么 bundle 文件大小压根没变。这是因为 bundle 中也引入了依赖库的代码,刚才的步骤并没有抽取 bundle 中引入的代码，接下来让我们学习如何将共同的代码抽取出来。
+真的有惊喜。。为什么 `bundle` 文件大小压根没变。这是因为 `bundle `中也引入了依赖库的代码,刚才的步骤并没有抽取 `bundle` 中引入的代码，接下来让我们学习如何将共同的代码抽取出来。
 
-#### 抽取共同代码 ####
-在这小节我们使用 webpack 自带的插件 CommonsChunkPlugin。
+### 抽取共同代码 ###
+在这小节我们使用 `webpack` 自带的插件 `CommonsChunkPlugin`。
 ```javascript
 module.exports = {
 //...
@@ -412,14 +415,14 @@ module.exports = {
 执行 build 操作会发现同时生成了 HTML 文件，并且已经自动引入了 JS 文件
 
 
-#### 按需加载代码 ####
-在这一小节我们将学习如何按需加载代码，在这之前的 vendor 入口我发现忘记加入 router 这个库了，大家可以加入这个库并且重新 build 下，会发现 bundle 只有不到 300KB 了。
+### 按需加载代码 ###
+在这一小节我们将学习如何按需加载代码，在这之前的 `vendor` 入口我发现忘记加入 `router` 这个库了，大家可以加入这个库并且重新 build 下，会发现 bundle 只有不到 300KB 了。
 
 现在我们的 bundle 文件包含了我们全部的自己代码。但是当用户访问我们的首页时，其实我们根本无需让用户加载除了首页以外的代码，这个优化我们可以通过路由的异步加载来完成。
 
 现在修改 src/router.js
 
-// 注意在最新版的 V4路由版本中，更改了按需加载的方式，如果安装了 V4版，可以自行前往官网学习
+注意在最新版的 V4路由版本中，更改了按需加载的方式，如果安装了 V4版，可以自行前往官网学习
 ```javascript
 import React from 'react';
 import { Router, Route, IndexRoute, hashHistory } from 'react-router';
@@ -474,7 +477,7 @@ export default Routes;
 点击右上角 Random Artist 以后
 
 
-#### 自动刷新 ####
+### 自动刷新 ###
 每次更新代码都需要执行依次 build，并且还要等上一会很麻烦，这一小节介绍如何使用自动刷新的功能。
 
 首先安装插件
@@ -491,16 +494,17 @@ export default Routes;
 现在直接执行 `pm run dev`可以发现浏览器自动打开了一个空的页面，并且在命令行中也多了新的输出
 
 
-等待编译完成以后，修改 JS 或者 CSS 文件，可以发现 webpack 自动帮我们完成了编译，并且只更新了需要更新的代码
+等待编译完成以后，修改 JS 或者 CSS 文件，可以发现 `webpack` 自动帮我们完成了编译，并且只更新了需要更新的代码
 
 
 但是每次重新刷新页面对于 debug 来说很不友好，这时候就需要用到模块热替换了。但是因为项目中使用了 React，并且 Vue 或者其他框架都有自己的一套 hot-loader，所以这里就略过了，有兴趣的可以自己学习下。
 
-#### 生成生产环境代码 ####
+### 生成生产环境代码 ###
 现在我们可以将之前所学和一些新加的插件整合在一起，build 生产环境代码。
 
-npm i --save-dev url-loader optimize-css-assets-webpack-plugin file-loader extract-text-webpack-plugin
-修改 webpack 配置
+`npm i --save-dev url-loader optimize-css-assets-webpack-plugin file-loader extract-text-webpack-plugin`
+
+#### 修改 `webpack` 配置 ####
 ```javascript
 var webpack = require('webpack');
 var path = require('path');
@@ -606,7 +610,7 @@ module.exports = {
 
 可以看到我们在经历了这么多步以后，将 bundle 缩小到了只有 27.1KB，像 vendor 这种常用的库我们一般可以使用 CDN 的方式外链进来。
 
-#### 补充 ####
+### 补充 ###
 webpack 配置上有些实用的小点在上文没有提到，统一在这里提一下。
 
 ```javascript
@@ -628,3 +632,6 @@ module.exports = {
 如果你是跟着本文一个个步骤敲下来的，那么大部分的 webpack 配置你应该都是可以看懂了，并且自己应该也知道如何去配置。谢谢大家看到这里，这是本项目对应的仓库，每个小节基本都对应了一次 commit。
 
 文章较长，有错误也难免，如果你发现了任何问题或者我有任何表述的不明白的地方，都可以留言给我。
+
+
+##### 本文转自掘金 https://juejin.im/post/59bb37fa6fb9a00a554f89d2-夕阳
